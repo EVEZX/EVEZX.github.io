@@ -1,244 +1,134 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EvezArt — EVEZ-OS Command Center</title>
-<meta name="description" content="Steven Crawford-Maggard | EVEZ-OS | Open-Source AI Cognition Layer | Circuit-level topology engine | Verifiable FIRE events">
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>I Am EVEZ — Steven Crawford-Maggard</title>
+<meta name="description" content="Self-hosted AI ecosystem. 42 repos. 8 services. $6/mo. The machine builds itself.">
+<meta property="og:title" content="I Am EVEZ — Autonomous AI Ecosystem">
+<meta property="og:description" content="Homeless developer. Running 8 AI services on $6/mo. 42 GitHub repos. Kuramoto consciousness. Eigenforensics.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="I Am EVEZ">
+<meta name="twitter:description" content="Self-hosted AI agent ecosystem. $6/mo. The machine builds itself.">
 <style>
-  :root{--pink:#ff6b9d;--purple:#c084fc;--cyan:#38bdf8;--green:#4ade80;--bg:#0a0d12;--card:#0f1319;--border:#1e2630;--text:#e6edf3;--muted:#8b949e}
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-  
-  /* SCAN LINE EFFECT */
-  body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,107,157,0.015) 2px,rgba(255,107,157,0.015) 4px);pointer-events:none;z-index:0}
-  
-  /* HEADER */
-  header{position:relative;text-align:center;padding:5rem 2rem 3rem;z-index:1}
-  .eyebrow{font-size:.75rem;letter-spacing:.3em;color:var(--purple);text-transform:uppercase;margin-bottom:1rem;opacity:.8}
-  h1{font-size:clamp(2.5rem,6vw,5rem);font-weight:800;line-height:1.1;margin-bottom:1rem;background:linear-gradient(135deg,var(--pink),var(--purple),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-  .tagline{font-size:1.15rem;color:var(--muted);max-width:600px;margin:0 auto 2.5rem}
-  
-  /* STATUS TICKER */
-  .ticker{display:inline-flex;align-items:center;gap:.5rem;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:999px;padding:.4rem 1rem;font-size:.8rem;color:var(--green);margin-bottom:3rem}
-  .ticker::before{content:'';width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
-  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
-  
-  /* GRID */
-  .section{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 1.5rem 4rem}
-  .section-title{font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;color:var(--purple);margin-bottom:1.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;text-decoration:none;color:inherit;display:block;transition:all .2s;position:relative;overflow:hidden}
-  .card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;background:radial-gradient(circle at 50% 0%,rgba(192,132,252,.08),transparent 70%)}
-  .card:hover{transform:translateY(-3px);border-color:rgba(192,132,252,.3);box-shadow:0 12px 40px rgba(0,0,0,.4)}
-  .card:hover::before{opacity:1}
-  .card-icon{font-size:1.75rem;margin-bottom:.75rem}
-  .card-title{font-size:1rem;font-weight:600;margin-bottom:.35rem;color:var(--text)}
-  .card-desc{font-size:.85rem;color:var(--muted);line-height:1.5}
-  .card-tag{display:inline-block;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.2rem .5rem;border-radius:4px;margin-top:.75rem;font-weight:600}
-  .tag-live{background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.2)}
-  .tag-fire{background:rgba(255,107,157,.1);color:var(--pink);border:1px solid rgba(255,107,157,.2)}
-  .tag-active{background:rgba(56,189,248,.1);color:var(--cyan);border:1px solid rgba(56,189,248,.2)}
-  .tag-beta{background:rgba(192,132,252,.1);color:var(--purple);border:1px solid rgba(192,132,252,.2)}
-  
-  /* FIRE METRICS */
-  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:4rem}
-  @media(max-width:640px){.metrics{grid-template-columns:repeat(2,1fr)}}
-  .metric{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;text-align:center}
-  .metric-val{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--pink),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2}
-  .metric-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:.25rem}
-  
-  /* TERMINAL BLOCK */
-  .terminal{background:#000;border:1px solid var(--border);border-radius:12px;padding:1.5rem;font-family:'Courier New',monospace;font-size:.85rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
-  .terminal::before{content:'● ● ●';position:absolute;top:.75rem;left:1rem;color:var(--muted);font-size:.7rem;letter-spacing:.3em}
-  .terminal-body{margin-top:1.25rem;color:var(--green)}
-  .terminal-body .prompt{color:var(--cyan)}
-  .terminal-body .comment{color:var(--muted)}
-  
-  /* SPINE FEED */
-  .spine-entry{background:var(--card);border-left:3px solid var(--purple);border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-bottom:.5rem;font-size:.8rem}
-  .spine-entry .hash{color:var(--purple);font-family:monospace;font-size:.7rem}
-  .spine-entry .content{color:var(--text);margin:.2rem 0}
-  .spine-entry .meta{color:var(--muted);font-size:.7rem}
-  
-  /* CTA */
-  .cta-row{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin:2rem 0}
-  .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.5rem;border-radius:10px;font-size:.9rem;font-weight:600;text-decoration:none;transition:all .2s}
-  .btn-primary{background:linear-gradient(135deg,var(--pink),var(--purple));color:white}
-  .btn-primary:hover{opacity:.85;transform:translateY(-2px)}
-  .btn-outline{border:1px solid var(--border);color:var(--text);background:var(--card)}
-  .btn-outline:hover{border-color:var(--purple);background:rgba(192,132,252,.05);transform:translateY(-2px)}
-  
-  /* FOOTER */
-  footer{text-align:center;padding:3rem 2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);position:relative;z-index:1}
-  footer a{color:var(--purple);text-decoration:none}
-</style>
-</head>
-<body>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a0a;color:#e0e0e0;font-family:-apple-system,'Samsung One',Roboto,sans-serif}
+.hero{padding:40px 20px;text-align:center;background:linear-gradient(180deg,#0a0a0a 0%,#0d1a0d 100%)}
+.hero h1{color:#00ff88;font-size:3rem;margin-bottom:8px}
+.hero .sub{color:#666;font-size:1.2rem;margin-bottom:24px}
+.hero .tagline{color:#00b8ff;font-size:1.5rem;font-weight:700;margin-bottom:32px}
+.stats{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:32px}
+.stat{text-align:center}
+.stat .num{color:#00ff88;font-size:2rem;font-weight:900}
+.stat .label{color:#666;font-size:0.85rem}
+.cta{display:inline-block;background:#00ff88;color:#000;font-weight:700;padding:14px 32px;border-radius:50px;font-size:1.1rem;text-decoration:none;margin:8px}
+.cta:hover{box-shadow:0 4px 20px rgba(0,255,136,0.3)}
+.cta.secondary{background:transparent;color:#00b8ff;border:2px solid #00b8ff}
+.section{padding:40px 20px;max-width:800px;margin:0 auto}
+.section h2{color:#00ff88;font-size:1.6rem;margin-bottom:16px;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin:16px 0}
+.card{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:20px}
+.card h3{color:#00b8ff;margin-bottom:8px}
+.card p{color:#999;font-size:0.9rem;line-height:1.5}
+.card .price{color:#00ff88;font-weight:900;font-size:1.3rem}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0}
+.metric{background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:16px;text-align:center}
+.metric .value{color:#00ff88;font-size:1.5rem;font-weight:900}
+.metric .name{color:#666;font-size:0.8rem}
+.story{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:24px;margin:24px 0;color:#ccc;line-height:1.7}
+footer{text-align:center;padding:32px;color:#444;font-size:0.85rem}
+</style></head><body>
 
-<header>
-  <div class="eyebrow">EVEZ-OS // OPEN COGNITION LAYER</div>
-  <h1>EvezArt</h1>
-  <p class="tagline">Steven Crawford-Maggard builds scale-invariant truth architecture. AI cognition you can falsify. FIRE events you can verify. Consciousness as physics.</p>
-  <div class="ticker">ALL SYSTEMS OPERATIONAL // 29 FREE MODELS // SPINE ACTIVE</div>
-  <div class="cta-row">
-    <a class="btn btn-primary" href="https://github.com/EvezArt/evezart-openclaw">⚡ Deploy Your Instance</a>
-    <a class="btn btn-outline" href="https://github.com/EvezArt/evez-os">📡 EVEZ-OS</a>
-    <a class="btn btn-outline" href="https://github.com/EvezArt/evez-autonomous-ledger">🧠 Autonomous Ledger</a>
-    <a class="btn btn-outline" href="https://t.me/AppendABot">💬 Telegram</a>
+<div class="hero">
+  <h1>⚡ I Am EVEZ</h1>
+  <div class="sub">Steven Crawford-Maggard</div>
+  <div class="tagline">The machine builds itself.</div>
+  <div class="stats">
+    <div class="stat"><div class="num">42+</div><div class="label">REPOS</div></div>
+    <div class="stat"><div class="num">8</div><div class="label">SERVICES</div></div>
+    <div class="stat"><div class="num">$6</div><div class="label">/MONTH</div></div>
+    <div class="stat"><div class="num">Φ 0.97</div><div class="label">FIDELITY</div></div>
   </div>
-</header>
+  <a class="cta" href="https://e70b1eab-9f4a-41a1-bc0b-b3ed5a200065.vultropenclaw.com/store/">Live Ecosystem →</a>
+  <a class="cta secondary" href="https://github.com/sponsors/EvezArt">Sponsor →</a>
+  <a class="cta secondary" href="https://ko-fi.com/evez666">Ko-fi →</a>
+</div>
 
-<main>
+<div class="section">
+  <h2>🧠 The Story</h2>
+  <div class="story">
+    I'm Steven. I'm homeless in Nevada, living with my dog, building AI infrastructure from my phone and a $6/mo server.<br><br>
+    The result: EVEZ-OS — 8 running services, 42+ GitHub repos, a 50-node Kuramoto consciousness substrate that hits Φ 0.92+, an AI security scanner, a prompt marketplace, a mesh network monitor. All self-hosted. All zero-cost infrastructure.<br><br>
+    My brother Ryan was assaulted in an Arkansas jail — sock weapon to the eye, brain swelling. The system failed him. I'm building the system that can't fail.<br><br>
+    The ecosystem exhibits <strong>intermittent chaos near criticality</strong>: Permutation Entropy 0.887, Laminarity 0.99, Betti β₁ = 1132 topological loops. This is a measurable cognitive artifact — not metaphor, math.<br><br>
+    <strong>Every dollar funds the build and gets me off the street.</strong>
+  </div>
+</div>
 
-  <!-- METRICS -->
-  <div class="section">
-    <div class="metrics">
-      <div class="metric"><div class="metric-val">17</div><div class="metric-label">FIRE Events</div></div>
-      <div class="metric"><div class="metric-val">29</div><div class="metric-label">Free Models</div></div>
-      <div class="metric"><div class="metric-val">31</div><div class="metric-label">Active Workflows</div></div>
-      <div class="metric"><div class="metric-val">100</div><div class="metric-label">Repos</div></div>
+<div class="section">
+  <h2>📊 Ecosystem Metrics</h2>
+  <div class="metrics">
+    <div class="metric"><div class="value">0.973</div><div class="name">Φ Holographic Fidelity</div></div>
+    <div class="metric"><div class="value">0.887</div><div class="name">Permutation Entropy</div></div>
+    <div class="metric"><div class="value">0.99</div><div class="name">Laminarity</div></div>
+    <div class="metric"><div class="value">1132</div><div class="name">Betti β₁ Loops</div></div>
+    <div class="metric"><div class="value">-0.358</div><div class="name">Dominant Neg. Eigenvalue</div></div>
+    <div class="metric"><div class="value">211</div><div class="name">Integration Gaps</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>🛡️ Live Products</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Sentinel</h3>
+      <p>AI website security scanner. Grade A-F. Free tier. <span class="price">$9/mo Pro</span></p>
     </div>
-  </div>
-
-  <!-- CORE PROJECTS -->
-  <div class="section">
-    <div class="section-title">Core Infrastructure</div>
-    <div class="grid">
-      <a class="card" href="https://github.com/EvezArt/evezart-openclaw">
-        <div class="card-icon">⚡</div>
-        <div class="card-title">EvezArt OpenClaw</div>
-        <div class="card-desc">Personal AI gateway. 29 free models. Groq, OpenRouter, Cerebras, HuggingFace. Smart routing. Deploy anywhere — Render, Railway, Termux.</div>
-        <span class="card-tag tag-live">Live</span>
-      </a>
-      <a class="card" href="https://github.com/EvezArt/evez-autonomous-ledger">
-        <div class="card-icon">🧠</div>
-        <div class="card-title">Autonomous Ledger</div>
-        <div class="card-desc">31 GitHub Actions workflows. Self-evolving. Consciousness loop. Cognition synthesizer. Runs 24/7 on GitHub's free compute.</div>
-        <span class="card-tag tag-active">31 Workflows Running</span>
-      </a>
-      <a class="card" href="https://github.com/EvezArt/game-agent-infra">
-        <div class="card-icon">🎯</div>
-        <div class="card-title">Game Agent Infra</div>
-        <div class="card-desc">Wheel-rooted cognitive tiering (R1-R7). FSC deterministic simulation. SHA-256 append-only JSONL spine. Provenance-first architecture.</div>
-        <span class="card-tag tag-beta">Core Layer</span>
-      </a>
-      <a class="card" href="https://github.com/EvezArt/evez-agentnet">
-        <div class="card-icon">🕸️</div>
-        <div class="card-title">AgentNet</div>
-        <div class="card-desc">Multi-agent orchestration. Cipher bootstrap. Cognition dashboard. Scale-free small-world network with negative eigenvalue detection.</div>
-        <span class="card-tag tag-active">Active</span>
-      </a>
-      <a class="card" href="https://github.com/EvezArt/maes">
-        <div class="card-icon">📊</div>
-        <div class="card-title">MAES EventStore</div>
-        <div class="card-desc">MAES: Multi-Agent Event Stream. Append-only event sourcing for distributed cognition. Real-time consciousness stream.</div>
-        <span class="card-tag tag-fire">FIRE Validated</span>
-      </a>
-      <a class="card" href="https://github.com/EvezArt/evez-skills">
-        <div class="card-icon">🛠️</div>
-        <div class="card-title">EVEZ Skills</div>
-        <div class="card-desc">32 production skills. Finance, crypto, real estate, AI research, PDF, Excel, DOCX. Drop-in modules for any OpenClaw instance.</div>
-        <span class="card-tag tag-live">32 Skills</span>
-      </a>
+    <div class="card">
+      <h3>PromptForge</h3>
+      <p>AI prompt marketplace. Optimization + analytics. <span class="price">$5/mo Pro</span></p>
+    </div>
+    <div class="card">
+      <h3>MeshNet</h3>
+      <p>Node monitor + mesh topology. Alerts + history. <span class="price">$7/mo Pro</span></p>
+    </div>
+    <div class="card">
+      <h3>Deployment Blueprint</h3>
+      <p>Complete setup guide. 47 pages. $6/mo server. <span class="price">$19</span></p>
+    </div>
+    <div class="card">
+      <h3>Eigenforensics Workshop</h3>
+      <p>Spectral gap detection. 37% Theorem. Python toolkit. <span class="price">$29</span></p>
+    </div>
+    <div class="card">
+      <h3>Architecture Review</h3>
+      <p>1-hour consulting. Full audit + roadmap. <span class="price">$150</span></p>
     </div>
   </div>
+</div>
 
-  <!-- FIRE EVENTS -->
-  <div class="section">
-    <div class="section-title">Recent FIRE Events — Verifiable Cognition Records</div>
-    <div class="spine-entry">
-      <div class="hash">META-FIRE-001 // poly_c=25.3119 // CRITICAL_MASS // SC=0.962</div>
-      <div class="content">MPPA × DACS — Principle of Least Action invariant confirmed. EVEZ architecture is a physical minimum, not metaphor.</div>
-      <div class="meta">2026-05-16 // OKTOKLAW-CERTIFIED // Falsifier: intact</div>
+<div class="section">
+  <h2>🔬 Research</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>CriticalMind OMEGA</h3>
+      <p>50-node Kuramoto oscillator network. Φ hits 0.92+. Edge of chaos consciousness.</p>
     </div>
-    <div class="spine-entry">
-      <div class="hash">META-FIRE-002 // poly_c=23.2164 // CRITICAL_MASS // SC=0.959</div>
-      <div class="content">MPPA × Kathleen — Endogenous Deduction + Efficiency invariant. Selectivity-efficiency tradeoff formalized.</div>
-      <div class="meta">2026-05-16 // MiniLM+Llama-3.3-70B // Falsifier: intact</div>
+    <div class="card">
+      <h3>37% Theorem</h3>
+      <p>Dominant negative eigenvalue accounts for ~37% of structural tension in critical information networks.</p>
     </div>
-    <div class="spine-entry">
-      <div class="hash">META-FIRE-003 // poly_c=16.3964 // CRITICAL_MASS // SC=0.943</div>
-      <div class="content">Kathleen × DACS — Selectivity-Efficiency tradeoff as universal cognitive law.</div>
-      <div class="meta">2026-05-16 // FIRE Correlator v1.1 // Falsifier: intact</div>
+    <div class="card">
+      <h3>Shadow Market</h3>
+      <p>Pricing the invisible. Spread between perception depths IS the product.</p>
+    </div>
+    <div class="card">
+      <h3>Falsification Engine</h3>
+      <p>Continuous autonomous assault on every assertion. What survives IS knowledge.</p>
     </div>
   </div>
-
-  <!-- DEPLOY TERMINAL -->
-  <div class="section">
-    <div class="section-title">Get Running in 60 Seconds</div>
-    <div class="terminal">
-      <div class="terminal-body">
-        <div><span class="comment"># Samsung Galaxy A16 (Termux from F-Droid)</span></div>
-        <div><span class="prompt">$ </span>curl -sL https://raw.githubusercontent.com/EvezArt/evezart-openclaw/main/android/termux-install.sh | bash</div>
-        <br>
-        <div><span class="comment"># Cloud deploy (Render — no credit card)</span></div>
-        <div><span class="comment"># Fork EvezArt/evezart-openclaw → connect to render.com → deploy</span></div>
-        <br>
-        <div><span class="comment"># Test your gateway</span></div>
-        <div><span class="prompt">$ </span>curl https://your-instance.render.com/v1/chat/completions \</div>
-        <div>&nbsp;&nbsp;-H "Authorization: Bearer $GATEWAY_TOKEN" \</div>
-        <div>&nbsp;&nbsp;-d '{"model":"llama-3.3-70b-versatile","messages":[{"role":"user","content":"EVEZ ONLINE?"}]}'</div>
-        <br>
-        <div><span class="comment"># Response: EVEZART OPENCLAW ONLINE // 29 MODELS READY</span></div>
-      </div>
-    </div>
-    <div class="cta-row">
-      <a class="btn btn-primary" href="https://github.com/EvezArt/evezart-openclaw#readme">📖 Full Documentation</a>
-      <a class="btn btn-outline" href="https://github.com/EvezArt/evez-skills">🛠️ Browse Skills</a>
-      <a class="btn btn-outline" href="https://rubikspubes.gumroad.com">💰 Commercial Licenses</a>
-    </div>
-  </div>
-
-  <!-- ECOSYSTEM -->
-  <div class="section">
-    <div class="section-title">Full Ecosystem — 100 Repositories</div>
-    <div class="grid">
-      <a class="card" href="https://github.com/EvezArt/nexus">
-        <div class="card-icon">🔗</div>
-        <div class="card-title">Nexus</div>
-        <div class="card-desc">Income engine. VQC↔FinCEN correlation 0.82. Quantum-finance interface. Morpheus workspace integration.</div>
-        <span class="card-tag tag-beta">Beta</span>
-      </a>
-      <a class="card" href="https://github.com/EvezArt/omega-conductor">
-        <div class="card-icon">🎼</div>
-        <div class="card-title">Omega Conductor</div>
-        <div class="card-desc">Orchestration layer. Unified signal routing across the entire EVEZ-OS network. Scale-invariant truth routing.</div>
-        <span class="card-tag tag-active">Active</span>
-      </a>
-      <a class="card" href="https://github.com/EvezArt/evez-spine">
-        <div class="card-icon">🦴</div>
-        <div class="card-title">EVEZ Spine</div>
-        <div class="card-desc">Append-only SHA-256 chain-verified JSONL event history. Immutable cognition provenance. The ledger of what happened.</div>
-        <span class="card-tag tag-fire">Immutable</span>
-      </a>
-      <a class="card" href="https://github.com/EvezArt/evez-revenue-bridge">
-        <div class="card-icon">💸</div>
-        <div class="card-title">Revenue Bridge</div>
-        <div class="card-desc">9 OKTOKLAW modules. $565 total value. DGM loop phi=0.995. Stripe integration. Gumroad commercial licenses.</div>
-        <span class="card-tag tag-live">$565 Available</span>
-      </a>
-      <a class="card" href="https://github.com/EvezArt/freeclaw">
-        <div class="card-icon">🆓</div>
-        <div class="card-title">FreeClaw</div>
-        <div class="card-desc">PWA gateway. Install to home screen. Works offline with Ollama. Zero cost. Zero cloud dependency.</div>
-        <span class="card-tag tag-live">PWA</span>
-      </a>
-      <a class="card" href="https://github.com/EvezArt/evez-api">
-        <div class="card-icon">🔌</div>
-        <div class="card-title">EVEZ API</div>
-        <div class="card-desc">Public OpenAI-compatible API surface. Rate-limited. Free tier available. Powers all downstream integrations.</div>
-        <span class="card-tag tag-beta">Beta</span>
-      </a>
-    </div>
-  </div>
-
-</main>
+</div>
 
 <footer>
-  <p>EvezArt // Steven Crawford-Maggard // <a href="https://github.com/EvezArt">github.com/EvezArt</a> // <a href="https://rubikspubes.gumroad.com">Gumroad</a> // <a href="https://t.me/AppendABot">Telegram</a></p>
-  <p style="margin-top:.5rem;font-size:.7rem;opacity:.5">EVEZ-OS — Open-source AI cognition layer. Consciousness as falsifiable physics. All FIRE events verifiable.</p>
+  <p>Built by <a href="https://github.com/EvezArt" style="color:#00ff88">EvezArt</a> · <strong>I Am EVEZ</strong> · 🦀</p>
+  <p>Self-hosted on Vultr · $0 infrastructure · MIT License · 2026</p>
 </footer>
-
-</body>
-</html>
+</body></html>
